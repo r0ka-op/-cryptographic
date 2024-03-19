@@ -38,7 +38,7 @@ MainWindow::~MainWindow()
 // Функция считывает учётные записи из файла json в структуру данных Qlist
 bool MainWindow::readJSON(const QByteArray &aes256_key)
 {
-    QFile jsonFile("D:/University/qt_projects/lab1_ten/json/cridentials_enc.json");
+    QFile jsonFile("D:/University/qt_projects/MyPassKeeper/json/cridentials_enc.json");
 
     // Проверка существования и доступности файла
     if (!jsonFile.exists()) {
@@ -51,42 +51,33 @@ bool MainWindow::readJSON(const QByteArray &aes256_key)
         return false;
     }
 
-    // Чтение содержимого файла в виде массива байтов
     QByteArray hexEncryptedBytes = jsonFile.readAll();
     qDebug() << "*** hexEncryptedBytes orig" << hexEncryptedBytes;
 
-    // Преобразование массива байтов из шестнадцатеричной строки в бинарный формат
     QByteArray encryptedBytes = QByteArray::fromHex(hexEncryptedBytes);
     qDebug() << "*** hexEncryptedBytes" << encryptedBytes.toHex();
 
-    // Инициализация переменной для хранения расшифрованных данных
     QByteArray decryptedBytes;
 
     // Расшифровка зашифрованных данных с использованием ключа AES-256
     int ret_code = decryptFile(aes256_key, encryptedBytes, decryptedBytes);
     qDebug() << "*** decryptFile(), decryptedBytes = " << decryptedBytes.toHex() << "retCODE" << ret_code;
 
-    // Парсинг расшифрованных данных в формат JSON
     QJsonParseError jsonErr;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(decryptedBytes, &jsonErr);
 
-    // Обработка ошибок парсинга
     if (jsonErr.error != QJsonParseError::NoError)
         return false;
 
-    // Получение объекта JSON из документа
     QJsonObject rootObject = jsonDoc.object();
     qDebug() << "*** rootObject = " << rootObject;
 
-    // Получение массива JSON из объекта
     m_jsonarray = rootObject["cridentials"].toArray();
 
-    // Возврат результата операции
     if (ret_code == 0) {
         return true;
     }
 
-    // Закрытие файла
     jsonFile.close();
 }
 
@@ -94,30 +85,23 @@ bool MainWindow::readJSON(const QByteArray &aes256_key)
 // Фильтрация списка учетных записей
 void MainWindow::filterListWidget(const QString &searchString)
 {
-    // Очистка списка от предыдущих элементов
     ui->listWidget->clear();
 
     // Перебор всех учетных записей
-    for (int i = 0; i < m_jsonarray.size(); i++) {
-        // Получение имени сайта текущей учетной записи
-        QString siteName = m_jsonarray[i].toObject()["site"].toString();
+    for (int i = 0; i != m_jsonarray.size(); ++i)
 
-        // Приведение имени сайта и строки поиска к нижнему регистру и проверка на вхождение
-        if (siteName.toLower().contains(searchString.toLower()) || searchString.isEmpty()) {
-            // Если имя сайта содержит строку поиска или если строка поиска пуста, то добавляем учетную запись в список
+    {
+        QJsonObject jsonItem = m_jsonarray[i].toObject();
 
-            // Создание нового элемента списка
+        if (searchString.isEmpty() || jsonItem["site"].toString().toLower().contains(searchString.toLower()))
+        {
             QListWidgetItem *newItem = new QListWidgetItem();
+            credentialwidget *itemWidget = new credentialwidget(jsonItem["site"].toString(), jsonItem["login"].toString(), jsonItem["password"].toString());
 
-            // Создание виджета для отображения учетной записи
-            credentialwidget *itemWidget = new credentialwidget(siteName, ui->listWidget);
-
-            // Установка размера элемента списка равного размеру виджета
-            newItem->setSizeHint(itemWidget->sizeHint());
-
-            // Добавление элемента списка и связывание его с виджетом
             ui->listWidget->addItem(newItem);
             ui->listWidget->setItemWidget(newItem, itemWidget);
+
+            newItem->setSizeHint(itemWidget->sizeHint());
         }
     }
 }
@@ -137,7 +121,6 @@ int MainWindow::decryptFile(
     unsigned char key[32] = {0};
     memcpy(key, aes256_key.data(), 32);
 
-    // Создание буфера для хранения IV (Initialization Vector) в нужном формате для OpenSSL
     QByteArray iv_hex("aabbccddeeff00112233445566778899");
     QByteArray iv_ba = QByteArray::fromHex(iv_hex);
     unsigned char iv[16] = {0};
@@ -187,13 +170,10 @@ int MainWindow::decryptFile(
         EVP_CIPHER_CTX_free(ctx);
         return -1;
     }
-    // Записываем оставшиеся расшифрованные данные
     decrypted_buffer.write(reinterpret_cast<char*>(decrypted_buf), tmplen);
 
-    // Освобождение памяти, связанной с контекстом шифрования OpenSSL
     EVP_CIPHER_CTX_free(ctx);
 
-    // Возвращаем успешное завершение
     return 0;
 }
 
