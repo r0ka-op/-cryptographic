@@ -1,0 +1,8 @@
+{
+    "cridentials": [
+        {"site": "google.com", "login": "b298168b790bac73d921ead3a248d617", "password": "b298168b790bac73d921ead3a248d617"},
+        {"site": "yandex.ru", "login": "f03ff1d655b1e150ca0583669bf2dd32", "password": "f03ff1d655b1e150ca0583669bf2dd32"},
+        {"site": "youtube.com", "login": "4e3a030e9a668c0adb9e6f4c99c3b344", "password": "4e3a030e9a668c0adb9e6f4c99c3b344"},
+        {"site": "github.com", "login": "9b0c4a4c02b53a24ad66d2d357428554", "password": "9b0c4a4c02b53a24ad66d2d357428554"}
+    ]
+}
