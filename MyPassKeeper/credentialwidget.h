@@ -16,9 +16,8 @@ class credentialwidget : public QWidget
 public:
     explicit credentialwidget(QString site, QString login_encrypted, QString password_encrypted, QWidget *parent = nullptr);
     ~credentialwidget();
-    bool checkJSON(unsigned char *aes256_key);
-    int decryptString(unsigned char *aes256_key, const QByteArray &encryptedBytes, QByteArray &decryptedBytes);
-    int decryptFile(unsigned char *aes256_key, const QByteArray &encryptedBytes, QByteArray &decryptedBytes);
+    bool checkJSON(QByteArray &aes256_key);
+    int decrypter(QByteArray &aes256_key, const QByteArray &encryptedBytes, QByteArray &decryptedBytes);
 
 private slots:
     void on_copyLogin_clicked();
