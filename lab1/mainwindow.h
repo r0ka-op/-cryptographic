@@ -30,7 +30,7 @@ public:
 
 public slots:
     //void on_lineEdit_editingFinished();
-    void filterListWidget(const QString & searchString);
+    void searchWidget(const QString & searchString);
     int decryptFile(const QByteArray &aes256_key, const QByteArray &encryptedBytes, QByteArray &decryptedBytes);
 
 private slots:

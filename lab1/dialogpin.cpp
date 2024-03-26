@@ -21,7 +21,8 @@ QString dialogPin::getPin(QWidget *parent)
     {
         return EnterPassword->ui->passwordLineEdit->text().toUtf8();
     }
-
+    //delete EnterPassword;
+    EnterPassword->deleteLater();
 }
 
 dialogPin::~dialogPin()

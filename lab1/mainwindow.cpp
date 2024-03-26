@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QObject::connect(ui->lineEdit, &QLineEdit::textEdited, this, &MainWindow::filterListWidget);
+    connect(ui->lineEdit, &QLineEdit::textEdited, this, &MainWindow::searchWidget);
+
 }
 
 MainWindow::~MainWindow()
@@ -83,18 +84,23 @@ bool MainWindow::readJSON(const QByteArray &aes256_key)
 
 
 // Фильтрация списка учетных записей
-void MainWindow::filterListWidget(const QString &searchString)
+void MainWindow::searchWidget(const QString &searchString)
 {
+
     ui->listWidget->clear();
 
+
+    qDebug() << "searchWidget start";
     // Перебор всех учетных записей
     for (int i = 0; i != m_jsonarray.size(); ++i)
 
     {
+        qDebug() << i;
         QJsonObject jsonItem = m_jsonarray[i].toObject();
 
-        if (searchString.isEmpty() || jsonItem["site"].toString().toLower().contains(searchString.toLower()))
+        if ((searchString == "") || jsonItem["site"].toString().toLower().contains(searchString.toLower()))
         {
+            qDebug() << "if start";
             QListWidgetItem *newItem = new QListWidgetItem();
             credentialwidget *itemWidget = new credentialwidget(jsonItem["site"].toString(), jsonItem["login"].toString(), jsonItem["password"].toString());
 
@@ -104,6 +110,8 @@ void MainWindow::filterListWidget(const QString &searchString)
             newItem->setSizeHint(itemWidget->sizeHint());
         }
     }
+
+    qDebug() << "searchWidget stop" << Qt::endl << Qt::endl;
 }
 
 // key = 1fdf45545a89b94b956eee6ec780ecc7adf2baf4eddb8163e60b6d18c2f48adc
@@ -193,9 +201,11 @@ void MainWindow::on_editPin_returnPressed()
     // если неверный - предупреждение
     if(readJSON(hash)) {
         ui->stackedWidget->setCurrentIndex(0);
-        filterListWidget("");
+        searchWidget("");
+
+        qDebug() << "searchWidget out";
     } else {
-        ui->lblLogin->setText("Неверный пин");
+        ui->lblLogin->setText("Неверный пин-код");
         ui->lblLogin->setStyleSheet("color:red;");
     }
 
